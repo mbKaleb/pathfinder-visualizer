@@ -1,24 +1,36 @@
-import logo from './logo.svg';
 import './App.css'
+import { useEffect } from 'react';
+import Grid from './components/Grid';
+import { useState } from 'react';
 
-import Node from './components/Node';
+export default function App() {
 
-function App() {
+  const [isAlgoRunning, setIsAlgoRunning] = useState(false)
 
-  for (let i; i < 15; i++) {
-    let ax = i;
-    for ( let j; j < 15; j++){
-      let ay = j;
-      
-    }
+  const toggleAlgo = (e) => {
+    setIsAlgoRunning(!isAlgoRunning)
+    console.log('toggled')
+  }
+
+  const STOP = (e) => {
+    e.stopPropagation()
+    setIsAlgoRunning(false)
+    console.log('STOP')
+    console.log(isAlgoRunning)
   }
 
 
+  useEffect(() => {
+  }, [])
+
   return (
-    <div className="App outline bg-white ">
-      <Node />
+    <div className="App outline bg-white">
+
+      <Grid isAlgoRunning={isAlgoRunning}/>
+
+      <button className='outline w-64 h-16' onClick={toggleAlgo} > Click to Start! </button>
+      
+      <button className='outline w-64 h-16' onClick={STOP} > Click to Stop! </button>
     </div>
   );
 }
-
-export default App;
