@@ -28,8 +28,6 @@ export default function Header({ startAlgoHandler, setGridSize }) {
 
   return (
     <div className="flex outline outline-1 h-fit">
-
-
         <div className="border m-1 bg-gray-200 m-2 p-2 rounded">
             <div className="border-b bg-white pl-3">Algorithom Controls</div>
             <select className="outline outline-1 rouned p-1 h-fit" onChange={optionHandler} >
@@ -40,36 +38,37 @@ export default function Header({ startAlgoHandler, setGridSize }) {
             <button className="CLEAR BUTTON outline outline-1 rounded p-1 m-2 h-fit bg-white" onClick={clearBoardHandler} >Clear Board</button>
         </div>
 
-        <div className="bg-gray-200 rounded m-1 ">
-            <div className="border-b bg-white px-3">Grid Controls</div>
-        <div className="border bg-gray-200 rounded flex">
-            <div className="bg-white border m-1 outline outline-1">
-                <label className="ml-2">Width:</label>
-                <input
-                    className="w-12 pl-2"
-                    type='number'
-                    placeholder="Grid Width"
-                    name='gridWidth'
-                    value={inputStore.gridWidth}
-                    onChange={inputHandler}
-                    />
+        <div className="bg-gray-200 rounded m-2 p-2 ">
+            <div className="border-b bg-white px-2">Grid Controls</div>
+            <div className="border bg-gray-200 rounded flex">
+                <div className="bg-white border m-1 outline outline-1">
+                    <label className="ml-2">Width:</label>
+                    <input
+                        className="w-12 pl-1"
+                        type='number'
+                        placeholder="Grid Width"
+                        name='gridWidth'
+                        value={inputStore.gridWidth}
+                        onChange={inputHandler}
+                        />
+                </div>
+                <div className="bg-white border m-1 outline outline-1">
+                    <label className="ml-2">Height:</label>
+                    <input
+                        className="w-12  pl-1"
+                        type='number'
+                        placeholder="Grid Height"
+                        name='gridHeight'
+                        value={inputStore.gridHeight}
+                        onChange={inputHandler}
+                        />
+                </div>
+                <button className="outline outline-1 rounded-sm bg-white m-1 px-2" onClick={updateGrid}>Apply</button>
             </div>
-            <div className="bg-white border m-1 outline outline-1">
-                <label className="ml-2">Height:</label>
-                <input
-                    className="w-12  pl-2"
-                    type='number'
-                    placeholder="Grid Height"
-                    name='gridHeight'
-                    value={inputStore.gridHeight}
-                    onChange={inputHandler}
-                    />
+            <div className="bg-gray-100 border">
+                <label className="bg-gray-100 ml-0.5">Min-Width is 4, Min-Height is 4</label>
             </div>
-            <button className="outline outline-1 rounded-sm bg-white ml-4 px-1" onClick={updateGrid}>Apply</button>
         </div>
-                    </div>
-
-
     </div>
   )
 }
