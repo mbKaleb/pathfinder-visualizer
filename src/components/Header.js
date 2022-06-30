@@ -3,6 +3,7 @@ import { useState } from "react"
 export default function Header({ startAlgoHandler, setGridSize }) {
 
     const [selectedOptions, setSelectedOptions] = useState('Dijkstras Algorithom')
+
     const [inputStore, setInputStore] = useState({
         gridWidth:9,
         gridHeight:9
@@ -22,6 +23,7 @@ export default function Header({ startAlgoHandler, setGridSize }) {
 
     const inputHandler = (e) => {
         const { name, value } = e.target;
+        if (value < 4) {return}
         setInputStore(inputStore => ({...inputStore, [name]: value}))
     };
     const updateGrid = () => setGridSize({width:inputStore.gridWidth,height:inputStore.gridHeight})
@@ -38,7 +40,7 @@ export default function Header({ startAlgoHandler, setGridSize }) {
             <button className="CLEAR BUTTON outline outline-1 rounded p-1 m-2 h-fit bg-white" onClick={clearBoardHandler} >Clear Board</button>
         </div>
 
-        <div className="bg-gray-200 rounded m-2 p-2 ">
+        <div className="bg-gray-200 rounded m-2 p-2">
             <div className="border-b bg-white px-2">Grid Controls</div>
             <div className="border bg-gray-200 rounded flex">
                 <div className="bg-white border m-1 outline outline-1">
