@@ -2,10 +2,20 @@ import { useEffect, useState } from 'react'
 import Node from './Node'
 
 
-function Grid( { isAlgoRunning } ) {
+function Grid( { isAlgoRunning, gridSize } ) {
 
-    const STARTNODE = '1,4'
-    const FINISHNODE = '8,4'
+        const startNode = {
+            x:1,
+            y:4,
+            isStart: true,
+            distance: 0
+        }
+        const endNode = {
+            x:8,
+            y:4,
+            isFinish: true,
+            distance: Infinity
+        }
 
     const [isRunning, setIsRunning] = useState(false)
 
@@ -14,35 +24,16 @@ function Grid( { isAlgoRunning } ) {
 
     const visitedStyles = 'w-6 h-6 outline outline-1 bg-blue-500 m-0.5'
 
-    const nodeGrid = null;
-
-
-    const distanceMap = {}
-    const buildMap = () => {
-        gridMatrix.map((row, y) => row.map((x) => {
-            let workingNode = `${x},${y}`;
-            let workingKey = distanceMap[calculateDistance(STARTNODE, workingNode)]
-            let distance = calculateDistance(STARTNODE, workingNode)
-            if (!workingKey) {
-                Object.assign(distanceMap, { [distance]: [workingNode]});
-            } else if (workingKey) {
-                Object.assign(distanceMap, { [distance]: [...workingKey, workingNode]})
-            }
-        }))
-    }
-    
-
     const generateGrid = () => {
         const gridMatrix = []
         const nodeMatrix = []
-        for (let x = 0; x < 9; x++) {
+        for (let x = 0; x < gridSize.width; x++) {
           const gridArray = []
           const nodeArray = []
-          for ( let y = 0; y < 9;y++){
+          for ( let y = 0; y < gridSize.height;y++){
             gridArray.push(y)
             nodeArray.push({
-                x,
-                y,
+                x,y,
                 distance: Infinity,
                 isVisited: false,
                 isStart: false,
@@ -55,88 +46,77 @@ function Grid( { isAlgoRunning } ) {
         }
         setGridMatrix(gridMatrix)
         setNodeMatrix(nodeMatrix)
-      }
+        setIsRunning(true)
+    }
 
+    const dijkstrasAlgo = (startNode, endNode, nodeMatrix ) => {
 
-    const dijkstrasAlgo = (grid = gridMatrix, startNode={x:1,y:4, previousNode:{}, isVisited:true, distance:0 }, endNode={x:8,y:4}) => {
+        nodeMatrix[startNode.x][startNode.y] = startNode
+        nodeMatrix[endNode.x][endNode.y] = endNode
 
-        const unvisitedNodes = Object.values(distanceMap).flat()
+        const unvisitedNodes = Object.values(nodeMatrix).flat()
         const visitedNodes = [];
-        
-        startNode.distance = 0;
-        startNode.isStart = true;
 
         while (!!unvisitedNodes.length){
-            const workingNode = {}
-            let a = unvisitedNodes.shift()
-            workingNode.x = a.split(',')[0]
-            workingNode.y = a.split(',')[1]
+            sortNodesByDistance(unvisitedNodes)
+            const workingNode = unvisitedNodes.shift()
 
-            if( updateNeighbors(workingNode) )
-
-            updateNeighbors(workingNode, gridMatrix)
-            // workingNode.isVisited = true
+            if (workingNode.isWall) continue;
+            if (workingNode.distance === Infinity) {console.log('error');return 0;}
+            
+            workingNode.isVisited = true
+            visitedNodes.push(workingNode)
+            if(workingNode.isFinish) {console.log(visitedNodes); return visitedNodes}
+            updateNeighbors(workingNode)
         }
     }
 
     const updateNeighbors = (node) => {
-        getUnvisitedNeighbors(node)
-
-        // (x,y) ? console.log('valid') : console.log('errpr');
-        (x,y) ? console.log(`${x},${y} `, nodeMatrix?.[x-1]?.[y]) : console.log('first');
-
+        const neighbors = getUnvisitedNeighbors(node)
+        for (const neighbor of neighbors) {
+            neighbor.distance = node.distance +1
+            neighbor.previousNode = node;
+        }
     }
+
+    function sortNodesByDistance(unvisitedNodes) {
+        unvisitedNodes.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
+      }
 
     const getUnvisitedNeighbors = (node, grid=nodeMatrix) => {
         const neighbors = [];
         const { x, y } = node;
-
-
+        if (nodeMatrix?.[x-1]?.[y]) neighbors.push(nodeMatrix[x-1][y])  //West
+        if (nodeMatrix?.[x]?.[y+1]) neighbors.push(nodeMatrix[x][y+1])  //South
+        if (nodeMatrix?.[x]?.[y-1]) neighbors.push(nodeMatrix[x][y-1])  //North
+        if (nodeMatrix?.[x+1]?.[y]) neighbors.push(nodeMatrix[x+1][y])  //East
+        return neighbors.filter((node) => !node.isVisited)
     }
 
-
-    const getClosestUnvisited = () => {
-
-    }
-
-    const calculateDistance = (node1, node2) => {
-
-        let ax = node1.split(',')[0]
-        let ay = node1.split(',')[1]
-
-        let bx = node2.split(',')[0]
-        let by = node2.split(',')[1]
-
-        let c1 = (bx - ax) ** 2
-        let c2 = (by - ay) ** 2
-
-        let final = Math.sqrt(c1 + c2)
-
-        return final
+    const animateNodes = (arrayOfNodes) => {
+        for (let i=0; i < arrayOfNodes.length; i++ ){
+            setTimeout(() => {
+                const node = arrayOfNodes[i]
+                const domNode = document.getElementById(`${node.x},${node.y}`);
+                domNode.className = visitedStyles
+            }, 25*i)
+        }
     }
 
     //On page load
     useEffect(() => {
         generateGrid()
-    }, [])
+    }, [gridSize])
 
     useEffect(() => {
-        buildMap()
-    }, [gridMatrix])
-
-    useEffect(() => {
-      dijkstrasAlgo()
-    }, [distanceMap])
-    useEffect(() => {
-        getUnvisitedNeighbors({x:1,y:4, previousNode:{}})
-    }, [dijkstrasAlgo])
+        if (isAlgoRunning) animateNodes(dijkstrasAlgo(startNode, endNode, nodeMatrix))
+    }, [isAlgoRunning])
     
 
     return (
         <div>
             {
             gridMatrix.map((row, index) => { 
-                
                 return (
                 <div key={index} className='flex' id={index}> {(row.map((item)=> {
                     return (
@@ -144,6 +124,7 @@ function Grid( { isAlgoRunning } ) {
                         key={[item, index]}
                         x={item}
                         y={index}
+
                       />
                     )
                     }))}

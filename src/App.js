@@ -1,36 +1,30 @@
 import './App.css'
-import { useEffect } from 'react';
 import Grid from './components/Grid';
 import { useState } from 'react';
+import Header from './components/Header';
 
 export default function App() {
 
   const [isAlgoRunning, setIsAlgoRunning] = useState(false)
+  const [gridSize, setGridSize] = useState({
+    width:9,
+    height:9
+  })
 
-  const toggleAlgo = (e) => {
-    setIsAlgoRunning(!isAlgoRunning)
-    console.log('toggled')
+  const startAlgoHandler = (e) => {
+    setIsAlgoRunning(true)
   }
 
-  const STOP = (e) => {
-    e.stopPropagation()
+  const stopAlgoHandler = (e) => {
     setIsAlgoRunning(false)
-    console.log('STOP')
-    console.log(isAlgoRunning)
   }
 
-
-  useEffect(() => {
-  }, [])
 
   return (
     <div className="App outline bg-white">
+      <Header startAlgoHandler={startAlgoHandler} stopAlgoHandler={stopAlgoHandler} setGridSize={setGridSize}/>
 
-      <Grid isAlgoRunning={isAlgoRunning}/>
-
-      <button className='outline w-64 h-16' onClick={toggleAlgo} > Click to Start! </button>
-      
-      <button className='outline w-64 h-16' onClick={STOP} > Click to Stop! </button>
+      <Grid isAlgoRunning={isAlgoRunning} gridSize={gridSize}/>
     </div>
   );
 }
