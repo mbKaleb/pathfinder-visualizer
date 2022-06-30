@@ -4,93 +4,96 @@ import Node from './Node'
 
 function Grid( { isAlgoRunning } ) {
 
-    const STARTNODE = '2,8'
-    const FINISHNODE = '26,8'
+    const STARTNODE = '1,4'
+    const FINISHNODE = '8,4'
 
     const [isRunning, setIsRunning] = useState(false)
 
+    const [gridMatrix, setGridMatrix] = useState([])
+    const [nodeMatrix, setNodeMatrix] = useState([])
+
     const visitedStyles = 'w-6 h-6 outline outline-1 bg-blue-500 m-0.5'
 
-    const [gridMatrix, setGridMatrix] = useState([])
+    const nodeGrid = null;
+
 
     const distanceMap = {}
     const buildMap = () => {
         gridMatrix.map((row, y) => row.map((x) => {
-
             let workingNode = `${x},${y}`;
             let workingKey = distanceMap[calculateDistance(STARTNODE, workingNode)]
             let distance = calculateDistance(STARTNODE, workingNode)
-
             if (!workingKey) {
                 Object.assign(distanceMap, { [distance]: [workingNode]});
             } else if (workingKey) {
                 Object.assign(distanceMap, { [distance]: [...workingKey, workingNode]})
             }
-            return 0;
         }))
     }
+    
 
     const generateGrid = () => {
         const gridMatrix = []
-        for (let ax = 0; ax < 15; ax++) {
+        const nodeMatrix = []
+        for (let x = 0; x < 9; x++) {
           const gridArray = []
-          for ( let ay = 0; ay < 40;ay++){
-            gridArray.push(ay)
+          const nodeArray = []
+          for ( let y = 0; y < 9;y++){
+            gridArray.push(y)
+            nodeArray.push({
+                x,
+                y,
+                distance: Infinity,
+                isVisited: false,
+                isStart: false,
+                isFinish:false,
+                isWall:false,
+            })
           }
           gridMatrix.push(gridArray)
+          nodeMatrix.push(nodeArray)
         }
         setGridMatrix(gridMatrix)
+        setNodeMatrix(nodeMatrix)
       }
 
 
-    const dijkstrasAlgorithom = (startingNode) => {
-        console.log(isRunning)
-        console.log('begin search')
+    const dijkstrasAlgo = (grid = gridMatrix, startNode={x:1,y:4, previousNode:{}, isVisited:true, distance:0 }, endNode={x:8,y:4}) => {
 
-        const startNode = {
-            'x': startingNode.split(',')[0],
-            'y': startingNode.split(',')[1]
-        };
+        const unvisitedNodes = Object.values(distanceMap).flat()
+        const visitedNodes = [];
+        
+        startNode.distance = 0;
+        startNode.isStart = true;
 
-        async function nodeExecution(nodeObject, previousNode={x:2, y:8} ) {
+        while (!!unvisitedNodes.length){
+            const workingNode = {}
+            let a = unvisitedNodes.shift()
+            workingNode.x = a.split(',')[0]
+            workingNode.y = a.split(',')[1]
 
-            let cNode = { ...nodeObject, previousNode:{...previousNode}}
-            
-            let currentDomElement = document.getElementById(`${cNode.x},${cNode.y}`)
-                let cElementType = document.getElementById(`${cNode.x},${cNode.y}`)?.getAttribute('type');
-            let rightNode = {x: (parseInt(cNode.x) +1).toString(), y: cNode.y};
-                let domRight = document.getElementById(`${rightNode.x},${rightNode.y}`)?.getAttribute('type');
-            let leftNode = {x: (parseInt(cNode.x) -1).toString(), y: cNode.y};
-                let domLeft = document.getElementById(`${leftNode.x},${leftNode.y}`)?.getAttribute('type');
-            let topNode = {x: cNode.x, y: (parseInt(cNode.y) -1).toString()};
-                let domTop = document.getElementById(`${topNode.x},${topNode.y}`)?.getAttribute('type');
-            let bottomNode = {x: cNode.x, y: (parseInt(cNode.y) +1).toString()};
-                let domBottom = document.getElementById(`${bottomNode.x},${bottomNode.y}`)?.getAttribute('type');
-                setIsRunning(true)
-                
-            if ( (!!(cElementType === 'start') && (isRunning)) ) {
-                 if (domRight === 'none') { setTimeout(() => {nodeExecution(rightNode, cNode)}, 1000) };
-                if (domLeft === 'none') { setTimeout(() => {nodeExecution(leftNode, cNode)}, 1000) };
-                if (domTop === 'none' ) { setTimeout(() => {nodeExecution(topNode, cNode)}, 1000) };
-                if (domBottom === 'none') { setTimeout(() => {nodeExecution(bottomNode, cNode)}, 1000) };
-                setIsRunning(false)
-            } else if ( (!!(cElementType === 'none') && (isRunning)) ) {
-                console.log((!!(cElementType === 'start') && (isRunning)))
-                console.log((!!(cElementType === 'none') && (isRunning)))
-                if (domRight === 'none') { setTimeout(() => {nodeExecution(rightNode, cNode)}, 1000) };
-                if (domLeft === 'none') { setTimeout(() => {nodeExecution(leftNode, cNode)}, 1000) };
-                if (domTop === 'none' ) { setTimeout(() => {nodeExecution(topNode, cNode)}, 1000) };
-                if (domBottom === 'none') { setTimeout(() => {nodeExecution(bottomNode, cNode)}, 1000) };
-                currentDomElement.className = visitedStyles;
-                currentDomElement.setAttribute('type', 'visited')
-            } else if (cElementType === 'finish') {
-                setIsRunning(false)
-                //first, stop iteration
-                //then read all of the previous steps
-            }
+            if( updateNeighbors(workingNode) )
+
+            updateNeighbors(workingNode, gridMatrix)
+            // workingNode.isVisited = true
         }
-        nodeExecution(startNode)
     }
+
+    const updateNeighbors = (node) => {
+        getUnvisitedNeighbors(node)
+
+        // (x,y) ? console.log('valid') : console.log('errpr');
+        (x,y) ? console.log(`${x},${y} `, nodeMatrix?.[x-1]?.[y]) : console.log('first');
+
+    }
+
+    const getUnvisitedNeighbors = (node, grid=nodeMatrix) => {
+        const neighbors = [];
+        const { x, y } = node;
+
+
+    }
+
 
     const getClosestUnvisited = () => {
 
@@ -112,15 +115,22 @@ function Grid( { isAlgoRunning } ) {
         return final
     }
 
+    //On page load
+    useEffect(() => {
+        generateGrid()
+    }, [])
 
     useEffect(() => {
-        if(!gridMatrix[0]){ generateGrid() }
-       
-        if (!distanceMap){ buildMap() }
+        buildMap()
+    }, [gridMatrix])
 
-        if (isAlgoRunning){ dijkstrasAlgorithom('2,8') }
-        
-    }, [gridMatrix, distanceMap, isAlgoRunning])
+    useEffect(() => {
+      dijkstrasAlgo()
+    }, [distanceMap])
+    useEffect(() => {
+        getUnvisitedNeighbors({x:1,y:4, previousNode:{}})
+    }, [dijkstrasAlgo])
+    
 
     return (
         <div>

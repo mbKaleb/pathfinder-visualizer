@@ -21,10 +21,10 @@ export default function Node({ x, y }) {
   }
 
   useEffect(() => {
-    if((x === 2) && (y === 8) ){
+    if((x === 1) && (y === 4) ){
       setIsStart(true)
     }
-    if((x === 26) && (y === 7) ){
+    if((x === 8) && (y === 4) ){
       setIsFinish(true)
     }
   }, [])
