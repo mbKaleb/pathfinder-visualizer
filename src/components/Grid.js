@@ -2,35 +2,31 @@ import { useEffect, useState } from 'react'
 import Node from './Node'
 
 
-function Grid( { isAlgoRunning, gridSize } ) {
-
-        const startNode = {
-            x:1,
-            y:4,
-            isStart: true,
-            distance: 0
-        }
-        const endNode = {
-            x:8,
-            y:4,
-            isFinish: true,
-            distance: Infinity
-        }
-
+function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
     const [isRunning, setIsRunning] = useState(false)
 
     const [gridMatrix, setGridMatrix] = useState([])
     const [nodeMatrix, setNodeMatrix] = useState([])
 
-    const visitedStyles = 'w-6 h-6 outline outline-1 bg-blue-500 m-0.5'
+    const [activeN1, setActiveN1] = useState(startNode)
+    const [activeN2, setActiveN2] = useState(endNode)
+
+    
+  const startSyles =    'w-6 h-6 outline outline-1 bg-green-400 m-0.5 start'
+  const finishStyles =  'w-6 h-6 outline outline-1 bg-red-500 m-0.5 finish'
+  const visitedStyles = 'w-6 h-6 outline outline-1 bg-blue-500 m-0.5'
+
+  const blockedStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5'
+  const defaultStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5 rounded'
+
 
     const generateGrid = () => {
         const gridMatrix = []
         const nodeMatrix = []
-        for (let x = 0; x < gridSize.width; x++) {
+        for (let x = 0;x<gridSize.height; x++) {
           const gridArray = []
           const nodeArray = []
-          for ( let y = 0; y < gridSize.height;y++){
+          for ( let y = 0;y<gridSize.width;y++){
             gridArray.push(y)
             nodeArray.push({
                 x,y,
@@ -81,7 +77,7 @@ function Grid( { isAlgoRunning, gridSize } ) {
 
     function sortNodesByDistance(unvisitedNodes) {
         unvisitedNodes.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
-      }
+    }
 
     const getUnvisitedNeighbors = (node, grid=nodeMatrix) => {
         const neighbors = [];
@@ -102,6 +98,13 @@ function Grid( { isAlgoRunning, gridSize } ) {
             }, 25*i)
         }
     }
+    const updateNode = (activeNode, node, styles) => {
+        const k1 = document.getElementById(`${activeNode.x},${activeNode.y}`)
+        const k2 = document.getElementById(`${node.x},${node.y}`)
+        console.log(k1, k2)
+        if(k1) k1.className = defaultStyles
+        if(k2) k2.className = styles
+    }
 
     //On page load
     useEffect(() => {
@@ -111,6 +114,14 @@ function Grid( { isAlgoRunning, gridSize } ) {
     useEffect(() => {
         if (isAlgoRunning) animateNodes(dijkstrasAlgo(startNode, endNode, nodeMatrix))
     }, [isAlgoRunning])
+
+    useEffect(() => {
+        updateNode(activeN1, startNode, startSyles)
+    }, [startNode])
+
+    useEffect(() => {
+        updateNode(activeN2, endNode,finishStyles)
+    }, [endNode])
     
 
     return (
