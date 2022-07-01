@@ -8,14 +8,15 @@ function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
     const [nodeMatrix, setNodeMatrix] = useState([])
 
     const [activeN1, setActiveN1] = useState(startNode)
+
     const [activeN2, setActiveN2] = useState(endNode)
 
-  const startSyles =    'w-6 h-6 outline outline-1 bg-green-400 m-0.5 start'
-  const finishStyles =  'w-6 h-6 outline outline-1 bg-red-500 m-0.5 finish'
-  const visitedStyles = 'w-6 h-6 outline outline-1 bg-blue-500 m-0.5'
+    const startSyles =    'w-6 h-6 outline outline-1 bg-green-400 m-0.5 start'
+    const finishStyles =  'w-6 h-6 outline outline-1 bg-red-500 m-0.5 finish'
+    const visitedStyles = 'w-6 h-6 outline outline-1 bg-blue-500 m-0.5'
 
-  const blockedStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5'
-  const defaultStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5 rounded'
+    const blockedStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5'
+    const defaultStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5 rounded'
 
 
     const generateGrid = () => {
@@ -96,15 +97,22 @@ function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
     const updateNode = (activeNode, node, styles) => {
         const k1 = document.getElementById(`${activeNode.x},${activeNode.y}`)
         const k2 = document.getElementById(`${node.x},${node.y}`)
-        if(k1) k1.className = defaultStyles
-        if(k2) k2.className = styles
+        if(k1) {k1.className = defaultStyles}
+        if(k2) {k2.className = styles;}
+        node.isStart ? setActiveN1(node) : setActiveN2(node);
     }
 
     const deleteMatrix = () => {
         setGridMatrix({})
-
     }
 
+    const buttonHandler = () => {
+
+        console.log(gridMatrix)
+        generateGrid()
+        console.log(gridMatrix)
+        console.log(nodeMatrix)
+    }
 
 
     //On page load
@@ -113,11 +121,6 @@ function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
         generateGrid()
     }, [gridSize])
 
-    useEffect(() => {
-        updateNode(activeN1, startNode, startSyles)
-        updateNode(activeN2, endNode, finishStyles)
-    }, [nodeMatrix])
-    
 
     useEffect(() => {
         if (isAlgoRunning) animateNodes(dijkstrasAlgo(startNode, endNode, nodeMatrix))
@@ -128,9 +131,9 @@ function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
     }, [startNode])
 
     useEffect(() => {
-        updateNode(activeN2, endNode,finishStyles)
+        updateNode(activeN2, endNode, finishStyles)
     }, [endNode])
-    
+
 
     return (
         <div>
@@ -150,6 +153,7 @@ function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
                 </div>)
             })
             }
+            <button className='outline' onClick={buttonHandler}>Clear</button>
     </div>
   )
 }
