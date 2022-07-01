@@ -3,7 +3,6 @@ import Node from './Node'
 
 
 function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
-    const [isRunning, setIsRunning] = useState(false)
 
     const [gridMatrix, setGridMatrix] = useState([])
     const [nodeMatrix, setNodeMatrix] = useState([])
@@ -11,7 +10,6 @@ function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
     const [activeN1, setActiveN1] = useState(startNode)
     const [activeN2, setActiveN2] = useState(endNode)
 
-    
   const startSyles =    'w-6 h-6 outline outline-1 bg-green-400 m-0.5 start'
   const finishStyles =  'w-6 h-6 outline outline-1 bg-red-500 m-0.5 finish'
   const visitedStyles = 'w-6 h-6 outline outline-1 bg-blue-500 m-0.5'
@@ -42,18 +40,14 @@ function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
         }
         setGridMatrix(gridMatrix)
         setNodeMatrix(nodeMatrix)
-        setIsRunning(true)
     }
 
     const dijkstrasAlgo = (startNode, endNode, nodeMatrix ) => {
-
         nodeMatrix[startNode.x][startNode.y] = startNode
         nodeMatrix[endNode.x][endNode.y] = endNode
-
         const unvisitedNodes = Object.values(nodeMatrix).flat()
         const visitedNodes = [];
-
-        while (!!unvisitedNodes.length){
+        while (!!unvisitedNodes.length && isAlgoRunning){
             sortNodesByDistance(unvisitedNodes)
             const workingNode = unvisitedNodes.shift()
 
@@ -98,18 +92,32 @@ function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
             }, 25*i)
         }
     }
+
     const updateNode = (activeNode, node, styles) => {
         const k1 = document.getElementById(`${activeNode.x},${activeNode.y}`)
         const k2 = document.getElementById(`${node.x},${node.y}`)
-        console.log(k1, k2)
         if(k1) k1.className = defaultStyles
         if(k2) k2.className = styles
     }
 
+    const deleteMatrix = () => {
+        setGridMatrix({})
+
+    }
+
+
+
     //On page load
+    
     useEffect(() => {
         generateGrid()
     }, [gridSize])
+
+    useEffect(() => {
+        updateNode(activeN1, startNode, startSyles)
+        updateNode(activeN2, endNode, finishStyles)
+    }, [nodeMatrix])
+    
 
     useEffect(() => {
         if (isAlgoRunning) animateNodes(dijkstrasAlgo(startNode, endNode, nodeMatrix))

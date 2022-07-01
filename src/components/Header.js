@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export default function Header({ startAlgoHandler, setGridSize, setN1, setN2 }) {
+export default function Header({ startAlgoHandler, stopAlgoHandler, setGridSize, setN1, setN2 }) {
 
     const [selectedOptions, setSelectedOptions] = useState('Dijkstras Algorithom')
 
@@ -16,7 +16,7 @@ export default function Header({ startAlgoHandler, setGridSize, setN1, setN2 }) 
     const startAlgoButtonHandler = () => startAlgoHandler()
 
 
-    const stopAlgoButtonHandler = () => { }
+    const stopAlgoButtonHandler = () => stopAlgoHandler()
 
     const clearBoardHandler = () => { }
 
@@ -53,7 +53,7 @@ export default function Header({ startAlgoHandler, setGridSize, setN1, setN2 }) 
                 <option>Dijkstras Algorithom</option>
             </select>
             <button className="START BUTTON outline outline-1 rounded p-1 m-2 h-fit bg-white" onClick={startAlgoButtonHandler} >Begin Simulation</button>
-            <button className="CLEAR BUTTON outline outline-1 rounded p-1 m-2 h-fit bg-white" onClick={clearBoardHandler} >Stop Simulation</button>
+            <button className="CLEAR BUTTON outline outline-1 rounded p-1 m-2 h-fit bg-white" onClick={stopAlgoButtonHandler} >Stop Simulation</button>
             <button className="CLEAR BUTTON outline outline-1 rounded p-1 m-2 h-fit bg-white" onClick={clearBoardHandler} >Clear Board</button>
         </div>
         <div className="bg-gray-200 rounded m-2 p-2">
