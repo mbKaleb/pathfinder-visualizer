@@ -123,7 +123,12 @@ function Grid( { isAlgoRunning, gridSize, startNode, endNode } ) {
 
 
     useEffect(() => {
-        if (isAlgoRunning) animateNodes(dijkstrasAlgo(startNode, endNode, nodeMatrix))
+        if (isAlgoRunning){
+            animateNodes(dijkstrasAlgo(startNode, endNode, nodeMatrix))
+            updateNode(activeN1, startNode, startSyles)
+            updateNode(activeN2, endNode, finishStyles)
+        }
+        
     }, [isAlgoRunning])
 
     useEffect(() => {
