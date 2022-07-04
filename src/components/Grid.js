@@ -76,8 +76,8 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
             if (workingNode.distance === Infinity) {console.log('error');return 0;}
             workingNode.isVisited = true
             visitedNodes.push(workingNode)
-            if(workingNode.isFinish) {setNodePath(visitedNodes);generateGrid(); return visitedNodes}
-            updateNeighbors(workingNode)
+            if(workingNode.isFinish && isAlgoRunning) {setNodePath(visitedNodes);generateGrid(); return visitedNodes}
+            if (isAlgoRunning) updateNeighbors(workingNode);
         }
     }
 
@@ -155,6 +155,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     }
 
     const clearBoard = (nodes) => {
+        if (isAlgoRunning) toggleAlgoState();
         nodes.forEach(node => {
             document.getElementById(`${node.x},${node.y}`).className = (defaultStyles)
         });
@@ -175,6 +176,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
 
     useEffect(() => {
         if (isAlgoRunning){
+            clearBoard(nodePath)
             animateNodes(dijkstrasAlgo(activeN1, activeN2, nodeMatrix))
             updateNodeInterface(activeN1, startNode, startSyles)
             updateNodeInterface(activeN2, endNode, finishStyles)
