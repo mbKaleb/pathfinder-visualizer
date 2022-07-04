@@ -132,7 +132,11 @@ export default function Header({ startAlgoHandler, setGridSize, gridSize, setN1,
         </div>
         <div className="bg-gray-200 rounded m-2 p-2">
             <div className="border-b bg-white px-2">Obstacles</div>
-                <div className="border bg-gray-200 rounded w-fit"></div>
+                <div className="border bg-gray-200 rounded w-fit">
+                    <select className="outline outline-1 outline-gray-500 rouned p-1 h-8 w-20 mt-2" onChange={optionHandler}>
+                        <option>Wall</option>
+                    </select>
+                </div>
             <div className="bg-gray-100 border">
             </div>
         </div>

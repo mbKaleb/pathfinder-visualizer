@@ -17,6 +17,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     const [activeN2, setActiveN2] = useState(endNode)
 
     const [isMouseDown, setIsMouseDown] = useState(false)
+    const [obstacleSelected, setobstacleSelected] = useState('wall')
 
 
     const grid = document.getElementById('grid')
@@ -26,8 +27,8 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     const finishStyles =  'w-6 h-6 outline outline-1 bg-red-500 m-0.5 finish'
     const visitedStyles = 'w-6 h-6 outline outline-1 bg-blue-500 m-0.5'
     const pathStyles = 'w-6 h-6 outline outline-1 bg-yellow-500 m-0.5'
+    const blockedStyles = 'w-6 h-6 outline outline-1 bg-gray-500 m-0.5'
 
-    const blockedStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5'
     const defaultStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5 rounded'
 
     const generateGrid = () => {
