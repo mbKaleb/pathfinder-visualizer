@@ -1,24 +1,21 @@
 import { useState } from "react"
 
-export default function Header({ startAlgoHandler, stopAlgoHandler, setGridSize, setN1, setN2 }) {
+export default function Header({ startAlgoHandler, setGridSize, gridSize, setN1, setN2, boardReloadHandler }) {
 
     const [selectedOptions, setSelectedOptions] = useState('Dijkstras Algorithom')
 
     const [inputStore, setInputStore] = useState({
-        gridWidth:9,
-        gridHeight:9
+        gridWidth:gridSize.width,
+        gridHeight:gridSize.height
     })
 
-    const [startNode, setStartNode] = useState({ x:2, y:4 })
-    const [endNode, setEndNode] = useState({ x:8, y:4 })
+    const [startNode, setStartNode] = useState({ x:3, y:8 })
+    const [endNode, setEndNode] = useState({ x:12, y:8 })
 
     const optionHandler = (e) => console.log(e.target.value)
     const startAlgoButtonHandler = () => startAlgoHandler()
 
-
-    const stopAlgoButtonHandler = () => stopAlgoHandler()
-
-    const clearBoardHandler = () => { }
+    const clearBoardHandler = () => boardReloadHandler()
 
     const inputStoreHandler = (e) => {
         const { name, value } = e.target;
@@ -28,13 +25,13 @@ export default function Header({ startAlgoHandler, stopAlgoHandler, setGridSize,
 
     const startNodeHandler = (e) => {
         const { name, value } = e.target;
-        if (value < 0) return;
+        if (value < 0) return
         setStartNode(inputStore => ({...inputStore, [name]: parseInt(value)}))
     };
 
     const endNodeHandler = (e) => {
         const { name, value } = e.target;
-        if (value < 0) return;
+        if (value < 0) return
         setEndNode(inputStore => ({...inputStore, [name]: parseInt(value)}))
     };
 
@@ -46,15 +43,14 @@ export default function Header({ startAlgoHandler, stopAlgoHandler, setGridSize,
     }
 
   return (
-    <div className="flex outline outline-1 h-fit w-screen">
+    <div className="flex outline outline-1 h-fit ">
         <div className="border m-1 bg-gray-200 m-2 p-2 rounded">
             <div className="border-b bg-white pl-3">Algorithom Controls</div>
-            <select className="outline outline-1 rouned p-1 h-fit" onChange={optionHandler} >
+            <select className="outline outline-1 outline-gray-500 rouned p-1 h-fit w-full mt-2" onChange={optionHandler}>
                 <option>Dijkstras Algorithom</option>
             </select>
-            <button className="START BUTTON outline outline-1 rounded p-1 m-2 h-fit bg-white" onClick={startAlgoButtonHandler} >Begin Simulation</button>
-            <button className="CLEAR BUTTON outline outline-1 rounded p-1 m-2 h-fit bg-white" onClick={stopAlgoButtonHandler} >Stop Simulation</button>
-            <button className="CLEAR BUTTON outline outline-1 rounded p-1 m-2 h-fit bg-white" onClick={clearBoardHandler} >Clear Board</button>
+            <button className="START BUTTON outline outline-1 outline-gray-500 rounded p-1 m-2 h-fit bg-white" onClick={startAlgoButtonHandler} >Start Simulation</button>
+            <button className="CLEAR BUTTON outline outline-1 outline-gray-500 rounded p-1 m-2 h-fit bg-white" onClick={clearBoardHandler} >Clear</button>
         </div>
         <div className="bg-gray-200 rounded m-2 p-2">
             <div className="border-b bg-white px-2">Grid Controls</div>
@@ -132,7 +128,12 @@ export default function Header({ startAlgoHandler, stopAlgoHandler, setGridSize,
             </div>
             
             <div className="bg-gray-100 border">
-                {/* <label className="bg-gray-100 ml-0.5">Min-Width is 4, Min-Height is 4</label> */}
+            </div>
+        </div>
+        <div className="bg-gray-200 rounded m-2 p-2">
+            <div className="border-b bg-white px-2">Obstacles</div>
+                <div className="border bg-gray-200 rounded w-fit"></div>
+            <div className="bg-gray-100 border">
             </div>
         </div>
     </div>
