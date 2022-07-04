@@ -19,9 +19,12 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     const [isMouseDown, setIsMouseDown] = useState(false)
     const [obstacleSelected, setobstacleSelected] = useState('wall')
 
+    const mouseDownHandler = () => setIsMouseDown(true)
+    const mouseUpHandler = () => setIsMouseDown(false)
+
 
     const grid = document.getElementById('grid')
-    
+
 
     const startSyles =    'w-6 h-6 outline outline-1 bg-green-400 m-0.5 start'
     const finishStyles =  'w-6 h-6 outline outline-1 bg-red-500 m-0.5 finish'
@@ -69,6 +72,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
         nodeMatrix[startNode.y][startNode.x] = startNode
         nodeMatrix[endNode.y][endNode.x] = endNode
         const unvisitedNodes = Object.values(nodeMatrix).flat() //here
+        setNodePath(unvisitedNodes)
         const visitedNodes = [];
         while (!!unvisitedNodes.length && isAlgoRunning){
             sortNodesByDistance(unvisitedNodes)
@@ -77,7 +81,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
             if (workingNode.distance === Infinity) {console.log('error');return 0;}
             workingNode.isVisited = true
             visitedNodes.push(workingNode)
-            if(workingNode.isFinish && isAlgoRunning) {setNodePath(visitedNodes);generateGrid(); return visitedNodes}
+            if(workingNode.isFinish && isAlgoRunning) {generateGrid(); return visitedNodes}
             if (isAlgoRunning) updateNeighbors(workingNode);
         }
     }
@@ -106,26 +110,30 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
 
     const animateNodes = (arrayOfNodes) => {
         for (let i=0; i < arrayOfNodes.length; i++ ){
-            setTimeout(() => {
-                const node = arrayOfNodes[i]
-                if (isAlgoRunning && !(node.isStart || node.isFinish)) {
-                    const domNode = document.getElementById(`${node.x},${node.y}`);
-                    domNode.className = visitedStyles
-                }
-            }, 10*i)
-            if (i === arrayOfNodes.length-1) {animateShortestPath(arrayOfNodes[arrayOfNodes.length-1], arrayOfNodes.length )}
+            if (isAlgoRunning){
+                setTimeout(() => {
+                    const node = arrayOfNodes[i]
+                    if (isAlgoRunning && !(node.isStart || node.isFinish)) {
+                        const domNode = document.getElementById(`${node.x},${node.y}`);
+                        domNode.className = visitedStyles
+                    }
+                }, 10*i)
+                if (i === arrayOfNodes.length-1) {animateShortestPath(arrayOfNodes[arrayOfNodes.length-1], arrayOfNodes.length )}
+            }
         }
         return arrayOfNodes[arrayOfNodes.length -1]
     }
 
     function animateShortestPath(finalNode, totalSteps ) {
-        let shortestPath = getShortestNodePath(finalNode)
-        for (const index in shortestPath){
-            setTimeout(() => {
-                let node = shortestPath[index]
-                const domNode = document.getElementById(`${node.x},${node.y}`);
-                domNode.className = pathStyles;
-            }, (index * 25) + ((totalSteps*11) + 350))
+        if (isAlgoRunning){
+            let shortestPath = getShortestNodePath(finalNode)
+            for (const index in shortestPath){
+                setTimeout(() => {
+                    let node = shortestPath[index]
+                    const domNode = document.getElementById(`${node.x},${node.y}`);
+                    domNode.className = pathStyles;
+                }, (index * 25) + ((totalSteps*11) + 350))
+            }
         }
     }
 
@@ -147,19 +155,15 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
         newNode.isStart ? setActiveN1(newNode) : setActiveN2(newNode);
     }
 
-    const mouseDownHandler = () => setIsMouseDown(true)
-    const mouseUpHandler = () => setIsMouseDown(false)
-
-    const updateNode = (prevNode, newNode, type=typeOption) => {
-        setNodeMatrix(nodeMatrix => {
-        })
-    }
-
     const clearBoard = (nodes) => {
         if (isAlgoRunning) toggleAlgoState();
+
+        generateGrid()
+
         nodes.forEach(node => {
             document.getElementById(`${node.x},${node.y}`).className = (defaultStyles)
         });
+
         setNodePath([])
     }
 
@@ -206,9 +210,8 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
                         key={[x, y]}
                         x={x}
                         y={y}
-
                         isMouseDown={isMouseDown}
-
+                        nodeMatrix={nodeMatrix}
                       />
                     )
                 }))}

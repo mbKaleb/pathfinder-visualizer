@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 
-export default function Node({ x, y, isMouseDown, obstacleSelected }) {
+export default function Node({ x, y, isMouseDown, obstacleSelected, nodeMatrix }) {
   //Styles
   const defaultStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5 rounded'
   const blockedStyles = 'w-6 h-6 outline outline-1 bg-gray-500 m-0.5'
@@ -12,9 +12,13 @@ export default function Node({ x, y, isMouseDown, obstacleSelected }) {
   }
   
   const mouseOverHandler = (e) => {
-    if ( isMouseDown && !obstacleSelected ) selfItem.className = blockedStyles
+    if ( isMouseDown && !obstacleSelected ) {
+      selfItem.className = blockedStyles
+      nodeMatrix[y][x].isWall = true
+    } 
+
   }
-  
+
   useEffect(() => {
     console.log(selfItem)
 

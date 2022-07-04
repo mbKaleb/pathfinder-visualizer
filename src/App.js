@@ -13,7 +13,7 @@ export default function App() {
   const [N2, setN2] = useState({ x:12, y:8, isFinish:true, distance:Infinity })
 
   const startAlgoHandler = () => setIsAlgoRunning(true)
-  const toggleAlgoState = () => setIsAlgoRunning(isAlgoRunning => !isAlgoRunning)
+  const toggleAlgoState = () => setIsAlgoRunning(!isAlgoRunning)
   const boardReloadHandler = () => setBoardReload(!boardReload)
 
   return (
