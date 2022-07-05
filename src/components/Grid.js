@@ -4,6 +4,10 @@ import Node from './Node'
 
 function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, boardReload } ) {
 
+    //Default Values
+    const [defaultGrid, setDefaultGrid] = useState([])
+    const [defaultNodeGrid, setDefaultNodeGrid] = useState([])
+
     const [gridMatrix, setGridMatrix] = useState([])
     const [nodeMatrix, setNodeMatrix] = useState([])
     const [flatNodeMap, setFlatNodeMap] = useState([])
@@ -35,7 +39,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
 
     const defaultStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5 rounded'
 
-    const generateGrid = () => {
+    const generateDefaultMatrix = () => {
         const gridMatrix = []
         const nodeMatrix = []
         const flatNodeMapArr = []
@@ -57,11 +61,8 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
           gridMatrix.push(gridArray)
           nodeMatrix.push(nodeArray)
         }
-        setGridMatrix(gridMatrix)
-        setNodeMatrix(nodeMatrix)
-        setNodePath(flatNodeMapArr)
-        setFlatNodeMap(flatNodeMapArr)
-
+        setDefaultGrid(gridMatrix)
+        setDefaultNodeGrid(nodeMatrix)
     }
 
     const generateAxisMarkers = () => {
@@ -74,7 +75,6 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     }
 
     const dijkstrasAlgo = (startNode, endNode, nodeMatrix ) => {
-        // console.log(nodeMatrix)
         nodeMatrix[startNode.y][startNode.x] = startNode
         nodeMatrix[endNode.y][endNode.x] = endNode
         const unvisitedNodes = Object.values(nodeMatrix).flat() //here
@@ -88,10 +88,9 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
             if (workingNode.distance === Infinity) {console.log('error');return 0;}
             workingNode.isVisited = true
             visitedNodes.push(workingNode)
-            if(workingNode.isFinish && isAlgoRunning) {generateGrid(); return visitedNodes}
+            if(workingNode.isFinish && isAlgoRunning) {return visitedNodes}
             if (isAlgoRunning) updateNeighbors(workingNode);
         }
-        return visitedNodes
     }
 
     const updateNeighbors = (node) => {
@@ -163,40 +162,23 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
         newNode.isStart ? setActiveN1(newNode) : setActiveN2(newNode);
     }
 
-    const resetDisplay = (nodes) => {
-        nodes.forEach(node => {
-            const nodeElement = document.getElementById(`${node.x},${node.y}`);
-            nodeElement.className = defaultStyles;
-        })
-
-    }
-
-    const clearBoard = (nodes) => {
-        if (isAlgoRunning) toggleAlgoState();
-        nodes.forEach(node => {
-            const nodeElement = document.getElementById(`${node.x},${node.y}`)
-            nodeElement.className = defaultStyles
-        })
-    }
 
     //On page load
     useEffect(() => {
+        generateDefaultMatrix()
+        generateAxisMarkers()
         updateNodeInterface(activeN1, startNode, startSyles)
         updateNodeInterface(activeN2, endNode, finishStyles)
-        generateAxisMarkers()
     }, [])
 
     useEffect(() => {
-        generateGrid()
+        generateDefaultMatrix()
         generateAxisMarkers()
     }, [gridSize])
 
     useEffect(() => {
         if (isAlgoRunning){
-            resetDisplay(flatNodeMap)
             animateNodes(dijkstrasAlgo(activeN1, activeN2, nodeMatrix))
-            updateNodeInterface(activeN1, startNode, startSyles)
-            updateNodeInterface(activeN2, endNode, finishStyles)
             toggleAlgoState()
         }
     }, [isAlgoRunning]);
@@ -204,12 +186,10 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     useEffect(() => {
         updateNodeInterface(activeN1, startNode, startSyles)
         updateNodeInterface(activeN2, endNode, finishStyles)
-    }, [startNode, endNode, nodePath ]);
+    }, [startNode, endNode]);
 
     useEffect(() => {
-        clearBoard(nodePath)
-        updateNodeInterface(activeN1, startNode, startSyles)
-        updateNodeInterface(activeN2, endNode, finishStyles)
+        
     }, [boardReload]);
 
     return (
