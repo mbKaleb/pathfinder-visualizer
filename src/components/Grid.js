@@ -6,6 +6,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
 
     const [gridMatrix, setGridMatrix] = useState([])
     const [nodeMatrix, setNodeMatrix] = useState([])
+    const [flatNodeMap, setFlatNodeMap] = useState([])
 
     const [widthArray, setWidthArray] = useState()
     const [heightArray, setHeightArray] = useState()
@@ -37,11 +38,13 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     const generateGrid = () => {
         const gridMatrix = []
         const nodeMatrix = []
+        const flatNodeMapArr = []
         for (let y = 0;y<gridSize.height; y++) {
           const gridArray = []
           const nodeArray = []
           for ( let x = 0;x<gridSize.width;x++){
             gridArray.push(x)
+            flatNodeMapArr.push({x,y})
             nodeArray.push({
                 x,y,
                 distance: Infinity,
@@ -56,23 +59,27 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
         }
         setGridMatrix(gridMatrix)
         setNodeMatrix(nodeMatrix)
+        setNodePath(flatNodeMapArr)
+        setFlatNodeMap(flatNodeMapArr)
+
     }
 
     const generateAxisMarkers = () => {
         const widthArray = []
         const heightArray = []
-        for (let i=0;i < gridSize?.width; i++){widthArray.push(i)}
-        for (let i=0;i < gridSize?.height; i++){heightArray.push(i)}
-        console.log(widthArray, heightArray)
+        for (let i=0;i < gridSize?.width; i++){widthArray.push(i)};
+        for (let i=0;i < gridSize?.height; i++){heightArray.push(i)};
         setWidthArray(widthArray)
         setHeightArray(heightArray)
     }
 
     const dijkstrasAlgo = (startNode, endNode, nodeMatrix ) => {
+        // console.log(nodeMatrix)
         nodeMatrix[startNode.y][startNode.x] = startNode
         nodeMatrix[endNode.y][endNode.x] = endNode
         const unvisitedNodes = Object.values(nodeMatrix).flat() //here
-        setNodePath(unvisitedNodes)
+        console.log('nodes', unvisitedNodes)
+        console.log(nodeMatrix)
         const visitedNodes = [];
         while (!!unvisitedNodes.length && isAlgoRunning){
             sortNodesByDistance(unvisitedNodes)
@@ -84,6 +91,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
             if(workingNode.isFinish && isAlgoRunning) {generateGrid(); return visitedNodes}
             if (isAlgoRunning) updateNeighbors(workingNode);
         }
+        return visitedNodes
     }
 
     const updateNeighbors = (node) => {
@@ -118,7 +126,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
                         domNode.className = visitedStyles
                     }
                 }, 10*i)
-                if (i === arrayOfNodes.length-1) {animateShortestPath(arrayOfNodes[arrayOfNodes.length-1], arrayOfNodes.length )}
+                if (i === arrayOfNodes.length-1) {console.log(arrayOfNodes[arrayOfNodes.length-1]); animateShortestPath(arrayOfNodes[arrayOfNodes.length-1], arrayOfNodes.length )}
             }
         }
         return arrayOfNodes[arrayOfNodes.length -1]
@@ -155,16 +163,20 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
         newNode.isStart ? setActiveN1(newNode) : setActiveN2(newNode);
     }
 
+    const resetDisplay = (nodes) => {
+        nodes.forEach(node => {
+            const nodeElement = document.getElementById(`${node.x},${node.y}`);
+            nodeElement.className = defaultStyles;
+        })
+
+    }
+
     const clearBoard = (nodes) => {
         if (isAlgoRunning) toggleAlgoState();
-
-        generateGrid()
-
         nodes.forEach(node => {
-            document.getElementById(`${node.x},${node.y}`).className = (defaultStyles)
-        });
-
-        setNodePath([])
+            const nodeElement = document.getElementById(`${node.x},${node.y}`)
+            nodeElement.className = defaultStyles
+        })
     }
 
     //On page load
@@ -181,7 +193,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
 
     useEffect(() => {
         if (isAlgoRunning){
-            clearBoard(nodePath)
+            resetDisplay(flatNodeMap)
             animateNodes(dijkstrasAlgo(activeN1, activeN2, nodeMatrix))
             updateNodeInterface(activeN1, startNode, startSyles)
             updateNodeInterface(activeN2, endNode, finishStyles)
@@ -196,6 +208,8 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
 
     useEffect(() => {
         clearBoard(nodePath)
+        updateNodeInterface(activeN1, startNode, startSyles)
+        updateNodeInterface(activeN2, endNode, finishStyles)
     }, [boardReload]);
 
     return (

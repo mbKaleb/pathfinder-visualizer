@@ -6,25 +6,18 @@ export default function Node({ x, y, isMouseDown, obstacleSelected, nodeMatrix }
   const blockedStyles = 'w-6 h-6 outline outline-1 bg-gray-500 m-0.5'
 
   const selfItem = document.getElementById(`${x},${y}`)
-  
+
   const clickHandler = () => {
     console.log('clicked', x, y)
   }
-  
+
   const mouseOverHandler = (e) => {
     if ( isMouseDown && !obstacleSelected ) {
       selfItem.className = blockedStyles
       nodeMatrix[y][x].isWall = true
-    } 
-
+    }
   }
 
-  useEffect(() => {
-    console.log(selfItem)
-
-  }, [])
-  
-  
   return (
     <div
       className={defaultStyles}

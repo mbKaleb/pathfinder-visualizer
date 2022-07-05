@@ -15,7 +15,7 @@ export default function Header({ startAlgoHandler, setGridSize, gridSize, setN1,
     const optionHandler = (e) => console.log(e.target.value)
     const startAlgoButtonHandler = () => startAlgoHandler()
 
-    const clearBoardHandler = () => boardReloadHandler()
+    const clearBoardHandler = () => {updateGrid()}
 
     const inputStoreHandler = (e) => {
         const { name, value } = e.target;
