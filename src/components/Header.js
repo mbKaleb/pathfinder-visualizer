@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export default function Header({ startAlgoHandler, setGridSize, gridSize, setN1, setN2, boardReloadHandler }) {
+export default function Header({ startAlgoHandler, setGridSize, gridSize, setN1, setN2, boardReloadHandler, obstacleReloadHandler }) {
 
     const [selectedOptions, setSelectedOptions] = useState('Dijkstras Algorithom')
 
@@ -15,7 +15,8 @@ export default function Header({ startAlgoHandler, setGridSize, gridSize, setN1,
     const optionHandler = (e) => console.log(e.target.value)
     const startAlgoButtonHandler = () => startAlgoHandler()
 
-    const clearBoardHandler = () => {boardReloadHandler(); updateGrid()}
+    // const clearBoardHandler = () => {boardReloadHandler()}
+
 
     const inputStoreHandler = (e) => {
         const { name, value } = e.target;
@@ -50,7 +51,7 @@ export default function Header({ startAlgoHandler, setGridSize, gridSize, setN1,
                 <option>Dijkstras Algorithom</option>
             </select>
             <button className="START BUTTON outline outline-1 outline-gray-500 rounded p-1 m-2 h-fit bg-white" onClick={startAlgoButtonHandler} >Start Simulation</button>
-            <button className="CLEAR BUTTON outline outline-1 outline-gray-500 rounded p-1 m-2 h-fit bg-white" onClick={clearBoardHandler} >Clear</button>
+            <button className="CLEAR BUTTON outline outline-1 outline-gray-500 rounded p-1 m-2 h-fit bg-white" onClick={boardReloadHandler} >Clear</button>
         </div>
         <div className="bg-gray-200 rounded m-2 p-2">
             <div className="border-b bg-white px-2">Grid Controls</div>
@@ -126,16 +127,19 @@ export default function Header({ startAlgoHandler, setGridSize, gridSize, setN1,
                     </div>
                 <button className="outline outline-1 rounded-sm bg-white m-1 px-2" onClick={updateNodes}>Apply</button>
             </div>
-            
             <div className="bg-gray-100 border">
             </div>
         </div>
+
         <div className="bg-gray-200 rounded m-2 p-2">
             <div className="border-b bg-white px-2">Obstacles</div>
-                <div className="border bg-gray-200 rounded w-fit">
-                    <select className="outline outline-1 outline-gray-500 rouned p-1 h-8 w-20 mt-2" onChange={optionHandler}>
+                <div className="border bg-gray-200 rounded w-fit w-36">
+                    <select className="outline outline-1 outline-gray-500 m-1 p-1 h-8 w-32 mt-2 grow " onChange={optionHandler}>
                         <option>Wall</option>
                     </select>
+                    <div className="grow flex justify-center">
+                        <button className="outline outline-1 outline-gray-500 rounded self-ce p-1 m-1 h-fit bg-white" onClick={obstacleReloadHandler} >Clear Obstacles</button>
+                    </div>
                 </div>
             <div className="bg-gray-100 border">
             </div>

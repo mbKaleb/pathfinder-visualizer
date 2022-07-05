@@ -8,13 +8,16 @@ export default function Node({ x, y, isMouseDown, obstacleSelected, nodeMatrix }
   const selfItem = document.getElementById(`${x},${y}`)
 
   const clickHandler = () => {
-    console.log('clicked', x, y)
+    selfItem.className = blockedStyles
+    nodeMatrix[y][x].isWall = true
+    
   }
 
   const mouseOverHandler = (e) => {
     if ( isMouseDown && !obstacleSelected ) {
       selfItem.className = blockedStyles
       nodeMatrix[y][x].isWall = true
+      nodeMatrix[y][x].distance = Infinity
     }
   }
 

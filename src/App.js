@@ -6,7 +6,9 @@ import Header from './components/Header';
 export default function App() {
 
   const [isAlgoRunning, setIsAlgoRunning] = useState(false)
+
   const [boardReload, setBoardReload] = useState(true)
+  const [obstacleReload, setObstacleReload] = useState(false)
 
   const [gridSize, setGridSize] = useState({ width:32, height:16 })
   const [N1, setN1] = useState({ x:3, y:8, isStart:true, distance:0 })
@@ -15,11 +17,27 @@ export default function App() {
   const startAlgoHandler = () => {if (!isAlgoRunning) {setIsAlgoRunning(true)}}
   const toggleAlgoState = () => setIsAlgoRunning(!isAlgoRunning)
   const boardReloadHandler = () => setBoardReload(!boardReload)
+  const obstacleReloadHandler = () => {setObstacleReload(!obstacleReload)}
 
   return (
     <div className="App bg-white">
-      <Header startAlgoHandler={startAlgoHandler} setGridSize={setGridSize} gridSize={gridSize} setN1={setN1} setN2={setN2} boardReloadHandler={boardReloadHandler}/>
-      <Grid isAlgoRunning={isAlgoRunning} toggleAlgoState={toggleAlgoState} gridSize={gridSize} startNode={N1} endNode={N2} boardReload={boardReload}/>
+      <Header
+        startAlgoHandler={startAlgoHandler}
+        setGridSize={setGridSize}
+        gridSize={gridSize}
+        setN1={setN1} setN2={setN2}
+        boardReloadHandler={boardReloadHandler}
+        obstacleReloadHandler={obstacleReloadHandler}
+      />
+
+      <Grid
+        isAlgoRunning={isAlgoRunning}
+        toggleAlgoState={toggleAlgoState}
+        gridSize={gridSize} 
+        startNode={N1} endNode={N2}
+        boardReload={boardReload}
+        obstacleReload={obstacleReload}
+      />
     </div>
   );
 }

@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react'
 import Node from './Node'
 
 
-function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, boardReload } ) {
+export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, boardReload, obstacleReload } ) {
 
     //Default Values
-    const [defaultGrid, setDefaultGrid] = useState([])
-    const [defaultNodeGrid, setDefaultNodeGrid] = useState([])
 
+    
     const [gridMatrix, setGridMatrix] = useState([])
+
+    const [defaultNodeGrid, setDefaultNodeGrid] = useState([])
     const [nodeMatrix, setNodeMatrix] = useState([])
-    const [flatNodeMap, setFlatNodeMap] = useState([])
 
     const [widthArray, setWidthArray] = useState()
     const [heightArray, setHeightArray] = useState()
@@ -61,7 +61,7 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
           gridMatrix.push(gridArray)
           nodeMatrix.push(nodeArray)
         }
-        setDefaultGrid(gridMatrix)
+        setGridMatrix(gridMatrix)
         setDefaultNodeGrid(nodeMatrix)
     }
 
@@ -77,15 +77,13 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     const dijkstrasAlgo = (startNode, endNode, nodeMatrix ) => {
         nodeMatrix[startNode.y][startNode.x] = startNode
         nodeMatrix[endNode.y][endNode.x] = endNode
-        const unvisitedNodes = Object.values(nodeMatrix).flat() //here
-        console.log('nodes', unvisitedNodes)
-        console.log(nodeMatrix)
+        const unvisitedNodes = Object.values(nodeMatrix).flat()
         const visitedNodes = [];
         while (!!unvisitedNodes.length && isAlgoRunning){
             sortNodesByDistance(unvisitedNodes)
             const workingNode = unvisitedNodes.shift()
             if (workingNode.isWall) continue;
-            if (workingNode.distance === Infinity) {console.log('error');return 0;}
+            if (workingNode.distance === Infinity) {console.log('error');return visitedNodes;}
             workingNode.isVisited = true
             visitedNodes.push(workingNode)
             if(workingNode.isFinish && isAlgoRunning) {return visitedNodes}
@@ -125,14 +123,14 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
                         domNode.className = visitedStyles
                     }
                 }, 10*i)
-                if (i === arrayOfNodes.length-1) {console.log(arrayOfNodes[arrayOfNodes.length-1]); animateShortestPath(arrayOfNodes[arrayOfNodes.length-1], arrayOfNodes.length )}
+                if (i === arrayOfNodes.length-1) {animateShortestPath(arrayOfNodes[arrayOfNodes.length-1], arrayOfNodes.length )}
             }
         }
         return arrayOfNodes[arrayOfNodes.length -1]
     }
 
     function animateShortestPath(finalNode, totalSteps ) {
-        if (isAlgoRunning){
+        if (isAlgoRunning && finalNode.isFinish){
             let shortestPath = getShortestNodePath(finalNode)
             for (const index in shortestPath){
                 setTimeout(() => {
@@ -154,12 +152,43 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
         return orderedNodes
     }
 
-    const updateNodeInterface = (activeNode, newNode, styles) => {
+    const updateNodeInterface = (activeNode, newNode, newStyle) => {
         const k1 = document.getElementById(`${activeNode.x},${activeNode.y}`)
         const k2 = document.getElementById(`${newNode.x},${newNode.y}`)
         if(k1) {k1.className = defaultStyles}
-        if(k2) {k2.className = styles;}
+        if(k2) {k2.className = newStyle;}
         newNode.isStart ? setActiveN1(newNode) : setActiveN2(newNode);
+    }
+
+    const unvisitAllNodes = () => {
+        nodeMatrix.map((row) => {
+            row.map((node) => {
+                node.previousNode = {};
+                node.isVisited = false;
+                node.distance = Infinity;
+                //Alter styles for Visited nodes which are not walls
+                if (!(node.isFinish || node.isStart || node.isWall) ) {
+                    let nodeElement = document.getElementById(`${node.x},${node.y}`);
+                    nodeElement.className = defaultStyles;
+                }
+                if (node.isStart) node.distance = 0
+                if (node.isWall) node.isWall = true
+            })
+        })
+        updateNodeInterface(activeN1, startNode, startSyles)
+        updateNodeInterface(activeN2, endNode, finishStyles)
+    }
+
+    const removeAllObstacles = () => {
+        nodeMatrix.map((row) => {
+            row.map((node) => {
+                if (node.isWall) {
+                    let nodeElement = document.getElementById(`${node.x},${node.y}`);
+                    nodeElement.className = defaultStyles;
+                    node.isWall = false;
+                }
+            })
+        })
     }
 
 
@@ -167,30 +196,41 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     useEffect(() => {
         generateDefaultMatrix()
         generateAxisMarkers()
-        updateNodeInterface(activeN1, startNode, startSyles)
-        updateNodeInterface(activeN2, endNode, finishStyles)
     }, [])
 
+    //When we change the grid size, update the display and default values
     useEffect(() => {
         generateDefaultMatrix()
         generateAxisMarkers()
     }, [gridSize])
+    //After we generate the new defaults, pass them to the active state
+    useEffect(() => {
+        setNodeMatrix(defaultNodeGrid)
+    }, [defaultNodeGrid])
+
 
     useEffect(() => {
         if (isAlgoRunning){
+            unvisitAllNodes()
             animateNodes(dijkstrasAlgo(activeN1, activeN2, nodeMatrix))
             toggleAlgoState()
         }
     }, [isAlgoRunning]);
+
 
     useEffect(() => {
         updateNodeInterface(activeN1, startNode, startSyles)
         updateNodeInterface(activeN2, endNode, finishStyles)
     }, [startNode, endNode]);
 
+
     useEffect(() => {
-        
+        unvisitAllNodes()
     }, [boardReload]);
+
+    useEffect(() => {
+        removeAllObstacles()
+    }, [obstacleReload])
 
     return (
         <div id='grid' className='flex w-screen ml-4' onMouseDown={mouseDownHandler} onMouseUp={mouseUpHandler} >
@@ -215,5 +255,3 @@ function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, b
     </div>
   )
 }
-
-export default Grid
