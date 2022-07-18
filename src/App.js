@@ -20,7 +20,7 @@ export default function App() {
   const obstacleReloadHandler = () => {setObstacleReload(!obstacleReload)}
 
   return (
-    <div className="App bg-white">
+    <div className="App bg-white select-none">
       <Header
         startAlgoHandler={startAlgoHandler}
         setGridSize={setGridSize}

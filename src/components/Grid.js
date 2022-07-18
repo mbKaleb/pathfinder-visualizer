@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import Node from './Node'
+import { defaultTheme } from '../settings/themes'
 
 
 export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, boardReload, obstacleReload } ) {
 
     //Default Values
 
-    
     const [gridMatrix, setGridMatrix] = useState([])
 
     const [defaultNodeGrid, setDefaultNodeGrid] = useState([])
@@ -15,29 +15,28 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
     const [widthArray, setWidthArray] = useState()
     const [heightArray, setHeightArray] = useState()
 
-    const [typeOption, setTypeOption] = useState('wall')
-    const [nodePath, setNodePath] = useState([])
-
+    
     const [activeN1, setActiveN1] = useState(startNode)
     const [activeN2, setActiveN2] = useState(endNode)
-
+    
     const [isMouseDown, setIsMouseDown] = useState(false)
-    const [obstacleSelected, setobstacleSelected] = useState('wall')
+    const [itemClicked, setItemClicked] = useState('empty')
+
+    const [typeOption, setTypeOption] = useState('wall')
+    const [obstacleSelected, setObstacleSelected] = useState('wall')
 
     const mouseDownHandler = () => setIsMouseDown(true)
     const mouseUpHandler = () => setIsMouseDown(false)
 
-
-    const grid = document.getElementById('grid')
-
-
-    const startSyles =    'w-6 h-6 outline outline-1 bg-green-400 m-0.5 start'
-    const finishStyles =  'w-6 h-6 outline outline-1 bg-red-500 m-0.5 finish'
-    const visitedStyles = 'w-6 h-6 outline outline-1 bg-blue-500 m-0.5'
-    const pathStyles = 'w-6 h-6 outline outline-1 bg-yellow-500 m-0.5'
-    const blockedStyles = 'w-6 h-6 outline outline-1 bg-gray-500 m-0.5'
-
-    const defaultStyles = 'w-6 h-6 outline outline-1 bg-gray-100 m-0.5 rounded'
+    const defaultNode = {
+        x: null,
+        y: null,
+        distance: Infinity,
+        isVisited: false,
+        isStart: false,
+        isFinish:false,
+        isWall:false,
+    }
 
     const generateDefaultMatrix = () => {
         const gridMatrix = []
@@ -62,7 +61,7 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
           nodeMatrix.push(nodeArray)
         }
         setGridMatrix(gridMatrix)
-        setDefaultNodeGrid(nodeMatrix)
+        setDefaultNodeGrid([ ...nodeMatrix ])
     }
 
     const generateAxisMarkers = () => {
@@ -110,7 +109,7 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
         if (nodeMatrix?.[y+1]?.[x]) neighbors.push(nodeMatrix[y+1][x])  //South
         if (nodeMatrix?.[y-1]?.[x-1]) neighbors.push(nodeMatrix[y-1][x])  //North
         if (nodeMatrix?.[y]?.[x+1]) neighbors.push(nodeMatrix[y][x+1])  //East
-        return neighbors.filter((node) => !node.isVisited)
+        return neighbors.filter((workingNode) => !workingNode.isVisited)
     }
 
     const animateNodes = (arrayOfNodes) => {
@@ -120,7 +119,7 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
                     const node = arrayOfNodes[i]
                     if (isAlgoRunning && !(node.isStart || node.isFinish)) {
                         const domNode = document.getElementById(`${node.x},${node.y}`);
-                        domNode.className = visitedStyles
+                        domNode.className = defaultTheme.visited
                     }
                 }, 10*i)
                 if (i === arrayOfNodes.length-1) {animateShortestPath(arrayOfNodes[arrayOfNodes.length-1], arrayOfNodes.length )}
@@ -135,8 +134,10 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
             for (const index in shortestPath){
                 setTimeout(() => {
                     let node = shortestPath[index]
-                    const domNode = document.getElementById(`${node.x},${node.y}`);
-                    domNode.className = pathStyles;
+                    if (!node.isFinish) {
+                        const domNode = document.getElementById(`${node.x},${node.y}`);
+                        domNode.className = defaultTheme.path;
+                    }
                 }, (index * 25) + ((totalSteps*11) + 350))
             }
         }
@@ -144,20 +145,26 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
 
     const getShortestNodePath = (node) => {
         const orderedNodes = []
-        let currentNode = node
+        let currentNode = { ...node }
         while (currentNode.previousNode) {
-            orderedNodes.unshift({'x':currentNode.x, 'y':currentNode.y })
+            orderedNodes.unshift(currentNode)
             currentNode = currentNode.previousNode;
         }
         return orderedNodes
     }
 
-    const updateNodeInterface = (activeNode, newNode, newStyle) => {
-        const k1 = document.getElementById(`${activeNode.x},${activeNode.y}`)
-        const k2 = document.getElementById(`${newNode.x},${newNode.y}`)
-        if(k1) {k1.className = defaultStyles}
-        if(k2) {k2.className = newStyle;}
-        newNode.isStart ? setActiveN1(newNode) : setActiveN2(newNode);
+    const updateNodeInterface = (prevNode, nextNode, newStyle) => {
+
+        const oldNodeElement = document.getElementById(`${prevNode.x},${prevNode.y}`)
+        const newNodeElement = document.getElementById(`${nextNode.x},${nextNode.y}`)
+
+        if (nodeMatrix?.[prevNode.y]?.[prevNode.x]) nodeMatrix[prevNode.y][prevNode.x] = { ...defaultNode, y:prevNode.y,x:prevNode.x }
+
+        if (oldNodeElement) {oldNodeElement.className = defaultTheme.empty}
+        if (newNodeElement) {newNodeElement.className = newStyle;}
+
+        nextNode.isStart ? setActiveN1(nextNode) : setActiveN2(nextNode);
+
     }
 
     const unvisitAllNodes = () => {
@@ -169,14 +176,14 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
                 //Alter styles for Visited nodes which are not walls
                 if (!(node.isFinish || node.isStart || node.isWall) ) {
                     let nodeElement = document.getElementById(`${node.x},${node.y}`);
-                    nodeElement.className = defaultStyles;
+                    nodeElement.className = defaultTheme.empty;
                 }
                 if (node.isStart) node.distance = 0
                 if (node.isWall) node.isWall = true
             })
         })
-        updateNodeInterface(activeN1, startNode, startSyles)
-        updateNodeInterface(activeN2, endNode, finishStyles)
+        updateNodeInterface(activeN1, startNode, defaultTheme.start)
+        updateNodeInterface(activeN2, endNode, defaultTheme.finish)
     }
 
     const removeAllObstacles = () => {
@@ -184,11 +191,25 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
             row.map((node) => {
                 if (node.isWall) {
                     let nodeElement = document.getElementById(`${node.x},${node.y}`);
-                    nodeElement.className = defaultStyles;
+                    nodeElement.className = defaultTheme.empty;
                     node.isWall = false;
                 }
             })
         })
+    }
+
+    const clearNodeMap = () => {
+        generateDefaultMatrix()
+        nodeMatrix.map((row) => {
+            row.map((node) => {
+                    const nodeElement = document?.getElementById(`${node.x},${node.y}`)
+                    nodeElement.className = defaultTheme.empty;
+                
+            })
+        })
+        updateNodeInterface(activeN1, startNode, defaultTheme.start)
+        updateNodeInterface(activeN2, endNode, defaultTheme.finish)
+        
     }
 
 
@@ -202,12 +223,13 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
     useEffect(() => {
         generateDefaultMatrix()
         generateAxisMarkers()
+        clearNodeMap()
     }, [gridSize])
+
     //After we generate the new defaults, pass them to the active state
     useEffect(() => {
-        setNodeMatrix(defaultNodeGrid)
+        setNodeMatrix([...defaultNodeGrid])
     }, [defaultNodeGrid])
-
 
     useEffect(() => {
         if (isAlgoRunning){
@@ -217,36 +239,37 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
         }
     }, [isAlgoRunning]);
 
-
     useEffect(() => {
-        updateNodeInterface(activeN1, startNode, startSyles)
-        updateNodeInterface(activeN2, endNode, finishStyles)
-    }, [startNode, endNode]);
-
+        updateNodeInterface(activeN1, startNode, defaultTheme.start)
+        updateNodeInterface(activeN2, endNode, defaultTheme.finish)
+        clearNodeMap()
+    }, [startNode, endNode, gridSize])
 
     useEffect(() => {
         unvisitAllNodes()
-    }, [boardReload]);
+    }, [boardReload])
 
     useEffect(() => {
         removeAllObstacles()
     }, [obstacleReload])
 
+
     return (
-        <div id='grid' className='flex w-screen ml-4' onMouseDown={mouseDownHandler} onMouseUp={mouseUpHandler} >
-            <div> <div className='mt-8 pt-0.5 text-right mr-1'>{heightArray?.map((index)=> {return(<div className='h-7 '>{index}</div>)})}</div> </div>
-            <div> <div className='flex ml-2 mt-2'>{widthArray?.map((index) => {return <div className='w-7'>{index}</div>})}</div>
-            <div></div>{gridMatrix.map((row, y) => {
+        <div id='grid' className='flex w-full ' onMouseDown={mouseDownHandler} onMouseUp={mouseUpHandler}>
+            <div className='grow '> <div className='flex grow mt-2 mr-2'><div className='w-[1vw] mx-[1vw]'></div> {widthArray?.map((index) => {return <div className='w-2 grow text-center text-[.7vw]'>{index}</div>})}</div>
+            <div></div>{nodeMatrix.map((row, y) => {
                 return (
-                    <div key={y} className='flex' id={y}> {(row.map((x)=> {
+                    <div key={'node-row:' +y} className='flex grow mr-2' id={y}> <div className='w-[1vw] align-baseline text-center text-[.7vw] ml-[2vw] '> {y} </div> {(row.map((node)=> {
                     return (
                       <Node
-                        key={[x, y]}
-                        x={x}
-                        y={y}
+                        key={[node.x, y]}
+                        node={node}
                         isMouseDown={isMouseDown}
                         nodeMatrix={nodeMatrix}
-                      />
+                        setItemClicked={setItemClicked}
+                        itemClicked={itemClicked}
+                        obstacleSelected={obstacleSelected}
+                        />
                     )
                 }))}
                 </div>)
