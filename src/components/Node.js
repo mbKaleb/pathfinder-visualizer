@@ -7,35 +7,68 @@ export default function Node({ node, isMouseDown, nodeMatrix, setItemClicked, it
 
   const clickHandler = (e) => {
     e.preventDefault();
-    (async () => {await itemClickHandler(node)})().then(mouseOverHandler(e));
-    
+    switch ( lastItemClicked(node) ) {
+      case 'wall' : changeThisNodeTo('empty'); break;
+      case 'start' : console.log('seccond'); break;
+      case 'finish' : console.log('third'); break;
+      case 'empty' : changeThisNodeTo('wall'); break;
+      default : console.log('error/default'); break;
+    }
   }
 
   const mouseUpHandler = (e) => {
     setItemClicked('empty')
   }
 
-  const itemClickHandler = (node) => {
-    if (node.isWall) {setItemClicked('wall')}
-    else if (node.isStart) {setItemClicked('start')}
-    else if (node.isFinish) {setItemClicked('finish')}
-    else setItemClicked('empty')
+  const lastItemClicked = (node) => {
+    if      (node.isWall) {setItemClicked('wall'); return 'wall'}
+    else if (node.isStart) {setItemClicked('start'); return 'start'}
+    else if (node.isFinish) {setItemClicked('finish'); return 'finish'}
+    else    setItemClicked('empty'); return 'empty'
   }
 
-  const mouseOverHandler = (e) => {
-    if ( isMouseDown && obstacleSelected === 'wall' && itemClicked === 'empty' ) {
-      selfItem.className = defaultTheme.wall
-      nodeMatrix[node.y][node.x].isWall = true
-      nodeMatrix[node.y][node.x].distance = Infinity
-    } else { console.log(isMouseDown) }
-    console.log(itemClicked)
+  const changeThisNodeTo = (type) => {
+    switch (type) {
+      case 'wall'   : {
+        selfItem.className = defaultTheme.wall
+        nodeMatrix[node.y][node.x].isWall = true
+        nodeMatrix[node.y][node.x].distance = Infinity
+        break;
+      }
+      case 'empty'  : {
+        selfItem.className = defaultTheme.empty
+        nodeMatrix[node.y][node.x].isWall = false
+        nodeMatrix[node.y][node.x].distance = Infinity
+        break;
+      }
+      case 'start'  : {}
+      case 'finish' : {}
+      default : return 0;
+    }
   }
+
+  const mouseOverHandler = () => {
+    switch (itemClicked) {
+      case 'empty' : {
+        if ( isMouseDown && obstacleSelected === 'wall') {
+          changeThisNodeTo('wall')
+        } break;
+      }
+      case 'wall' : {
+        if ( isMouseDown ) {
+          changeThisNodeTo('empty')
+        } break;
+      }
+    }
+  }
+
+
 
   const mouseLeaveHandler = () => {
     
   }
 
-  
+
 
   return (
     <div
