@@ -16,8 +16,16 @@ export default function Node({ node, isMouseDown, nodeMatrix, setItemClicked, it
     }
   }
 
-  const mouseUpHandler = (e) => {
-    setItemClicked('empty')
+  const isNodeEmpty = (node={node}) => {
+    if ( node.isWall || node.isStart || node.isVisited || node.isFinish ) {
+      return false
+    } else {
+      return true
+    }
+  }
+
+  const mouseUpHandler = () => {
+    // setItemClicked('empty')
   }
 
   const lastItemClicked = (node) => {
@@ -50,34 +58,25 @@ export default function Node({ node, isMouseDown, nodeMatrix, setItemClicked, it
   const mouseOverHandler = () => {
     switch (itemClicked) {
       case 'empty' : {
-        if ( isMouseDown && obstacleSelected === 'wall') {
+        if ( isMouseDown && isNodeEmpty(node) ) {
           changeThisNodeTo('wall')
         } break;
       }
       case 'wall' : {
-        if ( isMouseDown ) {
+        if ( isMouseDown && node.isWall ) {
           changeThisNodeTo('empty')
         } break;
       }
     }
   }
 
-
-
-  const mouseLeaveHandler = () => {
-    
-  }
-
-
-
   return (
     <div
-      className={defaultTheme.empty + ' pointer-events-none'}
+      className={defaultTheme.empty}
       id={[node.x,node.y]}
       onMouseDown={clickHandler}
       onMouseUp={mouseUpHandler}
       onMouseEnter={mouseOverHandler}
-      onMouseLeave={mouseLeaveHandler}
     >
       <div className={'grow pb-[100%]'}></div> {/*The percent is the aspect ratio ex 100 = 1:1, 75 = 4:3 */}
     </div>
