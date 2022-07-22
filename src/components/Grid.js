@@ -7,15 +7,12 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
 
     const [nodeGrid, setNodeGrid] = useState([])
 
-    const [widthArray, setWidthArray] = useState()
-
     const [activeN1, setActiveN1] = useState(startNode)
     const [activeN2, setActiveN2] = useState(endNode)
     
     const [isMouseDown, setIsMouseDown] = useState(false)
     const [itemClicked, setItemClicked] = useState('empty')
 
-    const [typeOption, setTypeOption] = useState('wall')
     const [obstacleSelected, setObstacleSelected] = useState('wall')
 
     const mouseDownHandler = () => setIsMouseDown(true)

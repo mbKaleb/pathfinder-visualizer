@@ -1,8 +1,8 @@
 {
-  "home": "http://Skywrithin.github.io/",
+  "home": "http://Skywrithin.github.io",
   "name": "pathfinder-visualizer",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
@@ -19,6 +19,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "build": "react-scripts build",
+    "build-test": "gh-pages -d",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -41,12 +42,6 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^8.20.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-react": "^7.30.1",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "gh-pages": "^4.0.0",
     "tailwindcss": "^3.1.4"
   }
