@@ -5,17 +5,10 @@ import { defaultTheme } from '../settings/themes'
 
 export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startNode, endNode, boardReload, obstacleReload } ) {
 
-    //Default Values
-
-    const [gridMatrix, setGridMatrix] = useState([])
-
-    const [defaultNodeGrid, setDefaultNodeGrid] = useState([])
-    const [nodeMatrix, setNodeMatrix] = useState([])
+    const [nodeGrid, setNodeGrid] = useState([])
 
     const [widthArray, setWidthArray] = useState()
-    const [heightArray, setHeightArray] = useState()
 
-    
     const [activeN1, setActiveN1] = useState(startNode)
     const [activeN2, setActiveN2] = useState(endNode)
     
@@ -38,16 +31,11 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
         isWall:false,
     }
 
-    const generateDefaultMatrix = () => {
-        const gridMatrix = []
-        const nodeMatrix = []
-        const flatNodeMapArr = []
+    const generateEmptyNodeMap = () => {
+        const nodeGrix = []
         for (let y = 0;y<gridSize.height; y++) {
-          const gridArray = []
           const nodeArray = []
           for ( let x = 0;x<gridSize.width;x++){
-            gridArray.push(x)
-            flatNodeMapArr.push({x,y})
             nodeArray.push({
                 x,y,
                 distance: Infinity,
@@ -57,20 +45,9 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
                 isWall:false,
             })
           }
-          gridMatrix.push(gridArray)
-          nodeMatrix.push(nodeArray)
+          nodeGrix.push(nodeArray)
         }
-        setGridMatrix(gridMatrix)
-        setDefaultNodeGrid([ ...nodeMatrix ])
-    }
-
-    const generateAxisMarkers = () => {
-        const widthArray = []
-        const heightArray = []
-        for (let i=0;i < gridSize?.width; i++){widthArray.push(i)};
-        for (let i=0;i < gridSize?.height; i++){heightArray.push(i)};
-        setWidthArray(widthArray)
-        setHeightArray(heightArray)
+        setNodeGrid(nodeGrix)
     }
 
     const dijkstrasAlgo = (startNode, endNode, nodeMatrix ) => {
@@ -102,13 +79,13 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
         unvisitedNodes.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
     }
 
-    const getUnvisitedNeighbors = (node, grid=nodeMatrix) => {
+    const getUnvisitedNeighbors = (node, grid=nodeGrid) => {
         const neighbors = [];
         const { x, y } = node;
-        if (nodeMatrix?.[y][x-1]) neighbors.push(nodeMatrix[y][x-1])  //West
-        if (nodeMatrix?.[y+1]?.[x]) neighbors.push(nodeMatrix[y+1][x])  //South
-        if (nodeMatrix?.[y-1]?.[x-1]) neighbors.push(nodeMatrix[y-1][x])  //North
-        if (nodeMatrix?.[y]?.[x+1]) neighbors.push(nodeMatrix[y][x+1])  //East
+        if (nodeGrid?.[y][x-1]) neighbors.push(nodeGrid[y][x-1])  //West
+        if (nodeGrid?.[y+1]?.[x]) neighbors.push(nodeGrid[y+1][x])  //South
+        if (nodeGrid?.[y-1]?.[x-1]) neighbors.push(nodeGrid[y-1][x])  //North
+        if (nodeGrid?.[y]?.[x+1]) neighbors.push(nodeGrid[y][x+1])  //East
         return neighbors.filter((workingNode) => !workingNode.isVisited)
     }
 
@@ -158,7 +135,7 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
         const oldNodeElement = document.getElementById(`${prevNode.x},${prevNode.y}`)
         const newNodeElement = document.getElementById(`${nextNode.x},${nextNode.y}`)
 
-        if (nodeMatrix?.[prevNode.y]?.[prevNode.x]) nodeMatrix[prevNode.y][prevNode.x] = { ...defaultNode, y:prevNode.y,x:prevNode.x }
+        if (nodeGrid?.[prevNode.y]?.[prevNode.x]) nodeGrid[prevNode.y][prevNode.x] = { ...defaultNode, y:prevNode.y,x:prevNode.x }
 
         if (oldNodeElement) {oldNodeElement.className = defaultTheme.empty}
         if (newNodeElement) {newNodeElement.className = newStyle;}
@@ -168,7 +145,7 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
     }
 
     const unvisitAllNodes = () => {
-        nodeMatrix.map((row) => {
+        nodeGrid.map((row) => {
             row.map((node) => {
                 node.previousNode = {};
                 node.isVisited = false;
@@ -187,7 +164,7 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
     }
 
     const removeAllObstacles = () => {
-        nodeMatrix.map((row) => {
+        nodeGrid.map((row) => {
             row.map((node) => {
                 if (node.isWall) {
                     let nodeElement = document.getElementById(`${node.x},${node.y}`);
@@ -199,12 +176,11 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
     }
 
     const clearNodeMap = () => {
-        generateDefaultMatrix()
-        nodeMatrix.map((row) => {
+        generateEmptyNodeMap()
+        nodeGrid.map((row) => {
             row.map((node) => {
                     const nodeElement = document?.getElementById(`${node.x},${node.y}`)
                     nodeElement.className = defaultTheme.empty;
-                
             })
         })
         updateNodeInterface(activeN1, startNode, defaultTheme.start)
@@ -215,26 +191,19 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
 
     //On page load
     useEffect(() => {
-        generateDefaultMatrix()
-        generateAxisMarkers()
+        generateEmptyNodeMap()
     }, [])
 
     //When we change the grid size, update the display and default values
     useEffect(() => {
-        generateDefaultMatrix()
-        generateAxisMarkers()
+        generateEmptyNodeMap()
         clearNodeMap()
     }, [gridSize])
-
-    //After we generate the new defaults, pass them to the active state
-    useEffect(() => {
-        setNodeMatrix([...defaultNodeGrid])
-    }, [defaultNodeGrid])
 
     useEffect(() => {
         if (isAlgoRunning){
             unvisitAllNodes()
-            animateNodes(dijkstrasAlgo(activeN1, activeN2, nodeMatrix))
+            animateNodes(dijkstrasAlgo(activeN1, activeN2, nodeGrid))
             toggleAlgoState()
         }
     }, [isAlgoRunning]);
@@ -253,11 +222,15 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
         removeAllObstacles()
     }, [obstacleReload])
 
+    // {return <div className='w-2 grow text-center text-[.7vw]'>{index}</div>}
+
 
     return (
-        <div id='grid' className='flex w-full ' onMouseDown={mouseDownHandler} onMouseUp={mouseUpHandler}>
-            <div className='grow '> <div className='flex grow mt-2 mr-2'><div className='w-[1vw] mx-[1vw]'></div> {widthArray?.map((index) => {return <div className='w-2 grow text-center text-[.7vw]'>{index}</div>})}</div>
-            <div></div>{nodeMatrix.map((row, y) => {
+        <div id='grid' className='flex w-full ' onMouseDown={mouseDownHandler} onMouseUp={mouseUpHandler}> 
+            <div className='grow '> <div className='flex grow mt-2 mr-2'><div className='w-[1vw] mx-[1vw]'></div>{
+            ([...Array(gridSize.width)].map((_,index)=>{return <div key={'width-array' + index} className='w-2 grow text-center text-[.7vw]'>{index}</div>}))
+            }</div>
+            <div></div>{nodeGrid.map((row, y) => {
                 return (
                     <div key={'node-row:' +y} className='flex grow mr-2' id={y}> <div className='w-[1vw] align-baseline text-center text-[.7vw] ml-[2vw] '> {y} </div> {(row.map((node)=> {
                     return (
@@ -265,7 +238,7 @@ export default function Grid( { isAlgoRunning, toggleAlgoState, gridSize, startN
                         key={[node.x, y]}
                         node={node}
                         isMouseDown={isMouseDown}
-                        nodeMatrix={nodeMatrix}
+                        nodeMatrix={nodeGrid}
                         setItemClicked={setItemClicked}
                         itemClicked={itemClicked}
                         obstacleSelected={obstacleSelected}
