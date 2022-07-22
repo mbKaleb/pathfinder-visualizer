@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { defaultTheme } from "../settings/themes"
 
-export default function Node({ node, isMouseDown, nodeMatrix, setItemClicked, itemClicked, obstacleSelected }) {
+export default function Node({ node, isMouseDown, nodeMatrix, setItemClicked, itemClicked }) {
   
   const selfItem = document.getElementById(`${node.x},${node.y}`)
 
