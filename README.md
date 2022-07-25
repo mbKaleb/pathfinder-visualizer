@@ -16,12 +16,6 @@ Clone the repository and check the dependencies.
 
 *Only tested on Google Chrome environments
 
-
-### Installing
-
-* How/where to download your program
-* Any modifications needed to be made to files/folders
-
 ### Executing program
 
 run ```npm install``` 
