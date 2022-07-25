@@ -52,8 +52,7 @@ If you are having issues with the buildpack or launching, try deleting the node 
 
 Kaleb Franken
 
-[My Projects](Kaleb-Franken.technology)
-[LinkedIn](https://www.linkedin.com/in/kaleb-f/)
+[My Projects](Kaleb-Franken.technology) | [LinkedIn](https://www.linkedin.com/in/kaleb-f/)
 
 📫 contact 📫
 
