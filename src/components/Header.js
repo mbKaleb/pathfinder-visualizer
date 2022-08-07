@@ -24,8 +24,6 @@ export default function Header({
     const optionHandler = (e) => console.log(e.target.value);
     const startAlgoButtonHandler = () => startAlgoHandler();
 
-    // const clearBoardHandler = () => {boardReloadHandler()}
-
     const inputStoreHandler = (e) => {
         const { name, value } = e.target;
         if (value < 4 || value > 99) {
