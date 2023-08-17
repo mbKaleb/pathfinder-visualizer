@@ -101,7 +101,7 @@ export default function Node({
             className={defaultTheme.empty}
             id={[node.x, node.y]}
             onMouseDown={clickHandler}
-            onMouseUp={mouseUpHandler}
+            // onMouseUp={mouseUpHandler}
             onMouseEnter={mouseOverHandler}
         >
             <div className={'grow pb-[100%]'}></div>{' '}
